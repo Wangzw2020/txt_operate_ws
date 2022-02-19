@@ -1,7 +1,7 @@
 #include"ros/ros.h"
 #include"get_data.h"
 
-string txt_id = "/home/wzw/workspace/txt_operate_ws/src/txt_operate/src/a.txt";
+string txt_id = "/home/wzw/workspace/txt_operate_ws/src/txt_operate/src/b.txt";
 
 int main(int argc, char** argv)
 {
@@ -10,7 +10,6 @@ int main(int argc, char** argv)
 	A.init();
 	ros::spin();
 	
-	
 	if (A.getAllData())
 	{
 		Txt B;
@@ -18,6 +17,6 @@ int main(int argc, char** argv)
 		B.setData(A.getData());
 		B.writeFile();
 	}
-	cout << "txt operated!" << endl;
+	
 	return 0;
 }

@@ -23,3 +23,6 @@ include_directories(
 
 add_executable(data_record src/data_record.cpp)
 target_link_libraries(data_record ${catkin_LIBRARIES})
+
+add_executable(data_operate src/data_operate.cpp)
+target_link_libraries(data_operate ${catkin_LIBRARIES})
