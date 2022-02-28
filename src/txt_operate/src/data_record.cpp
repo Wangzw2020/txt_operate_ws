@@ -13,9 +13,8 @@ int main(int argc, char** argv)
 	if (A.getAllData())
 	{
 		Txt B;
-		B.openFile(txt_id);
 		B.setData(A.getData());
-		B.writeFile();
+		B.writeFile(txt_id);
 	}
 	
 	return 0;

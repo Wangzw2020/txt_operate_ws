@@ -1,9 +1,10 @@
 #ifndef TXT_OPERATE_H
 #define TXT_OPERATE_H
-#include<iostream>
-#include<fstream>
-#include<vector>
-#include"ros/ros.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "ros/ros.h"
+#include "tools.h"
 
 using namespace std;
 
@@ -17,34 +18,35 @@ struct line_data{
 
 class Txt{
 private:
+	string save_position_;
 	fstream txt_;
 	std::vector<line_data> txt_data_;
+	
 public:
 	Txt();
 	~Txt();
-	void openFile(string& file_position);
+
 	void setData(std::vector<line_data> data);
 	void setData(string& file_position);
-	void writeFile();
+	void writeFile(string& file_position);
 	
 	void start_time_to_zero();
 	void insertData(int num);
+	void extractData(double time);
 	void correctT();
 	void correctX(double dx);
+	void correctX(double dx, int start, int end);
 	void correctY(double dy);
+	void correctY(double dy, int start, int end);
 	void correctVx(double dvx);
+	void correctVx(double dvx, int start, int end);
 	void correctVy(double dvy);
+	void correctVy(double dvy, int start, int end);
 	
+	void addGaussian(double mean, double sigma, int column=-1,  int restrain_step = -1);
 	
 	std::vector<line_data> getData() { return txt_data_; }
 };
-
-void Txt::openFile(string& file_position)
-{
-	txt_.open(file_position.c_str());
-	if (!txt_)
-		cout << "open " << file_position << " failed!" << endl;
-}
 
 Txt::Txt()
 {
@@ -108,6 +110,21 @@ void Txt::insertData(int num)
 	txt_data_ = temp_txt_data;
 }
 
+void Txt::extractData(double time)
+{
+	std::vector<line_data> txt_data_tmp;
+	int k=0;
+	for(int i=0; i<txt_data_.size(); ++i)
+	{
+		if(txt_data_[i].time >= k * time)
+		{
+			txt_data_tmp.push_back(txt_data_[i]);
+			++k;
+		}
+	}
+	txt_data_ = txt_data_tmp;
+}
+
 void Txt::correctT()
 {
 	double t0 = txt_data_[0].time;
@@ -125,9 +142,25 @@ void Txt::correctX(double dx)
 	}
 }
 
+void Txt::correctX(double dx, int start, int end)
+{
+	for(int i=start-1; i<end-1; ++i)
+	{
+		txt_data_[i].x = txt_data_[i].x + dx;
+	}
+}
+
 void Txt::correctY(double dy)
 {
 	for(int i=0; i<txt_data_.size(); ++i)
+	{
+		txt_data_[i].y = txt_data_[i].y + dy;
+	}
+}
+
+void Txt::correctY(double dy, int start, int end)
+{
+	for(int i=start-1; i<end-1; ++i)
 	{
 		txt_data_[i].y = txt_data_[i].y + dy;
 	}
@@ -141,6 +174,14 @@ void Txt::correctVx(double dvx)
 	}
 }
 
+void Txt::correctVx(double dvx, int start, int end)
+{
+	for(int i=start-1; i<end-1; ++i)
+	{
+		txt_data_[i].vx = txt_data_[i].vx + dvx;
+	}
+}
+
 void Txt::correctVy(double dvy)
 {
 	for(int i=0; i<txt_data_.size(); ++i)
@@ -149,13 +190,54 @@ void Txt::correctVy(double dvy)
 	}
 }
 
-void Txt::writeFile()
+void Txt::correctVy(double dvy, int start, int end)
 {
+	for(int i=0; i<txt_data_.size(); ++i)
+	{
+		txt_data_[i].vy = txt_data_[i].vy + dvy;
+	}
+}
+
+void Txt::addGaussian(double mean, double sigma, int column, int restrain_step)
+{
+	std::vector<line_data> txt_data_tmp;
+	txt_data_tmp = txt_data_;
+	
+	double param;
+	
+	for(int i=0; i<txt_data_.size(); ++i)
+	{
+		if(i > restrain_step-1 || restrain_step == -1)
+			param = 1.0;
+		else
+			param = pow(2,restrain_step - i);
+		
+		if(column == 1 || column == -1)
+			txt_data_tmp[i].x += gaussian_noise(mean, sigma * param);
+		if(column == 2 || column == -1)
+			txt_data_tmp[i].y += gaussian_noise(mean, sigma * param);
+		if(column == 3 || column == -1)
+			txt_data_tmp[i].vx += gaussian_noise(mean, sigma * param);
+		if(column == 4 || column == -1)
+			txt_data_tmp[i].vy += gaussian_noise(mean, sigma * param);
+	}
+	txt_data_ = txt_data_tmp;
+}
+
+void Txt::writeFile(string& file_position)
+{
+	save_position_ = file_position.c_str();
+	ofstream txt(save_position_,ios_base::out);
+	txt.close();
+	txt_.open(save_position_);
+	if (!txt_)
+		cout << "open " << file_position << " failed!" << endl;
 	for(int i=0; i<txt_data_.size(); ++i)
 	{
 		txt_ << txt_data_[i].time << " " << txt_data_[i].x << " " << txt_data_[i].y << " " 
 			 << txt_data_[i].vx << " " << txt_data_[i].vy << " " << endl;
 	}
+	txt_.close();
 }
 
 
