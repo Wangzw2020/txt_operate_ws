@@ -30,7 +30,6 @@ public:
 	void setData(string& file_position);
 	void writeFile(string& file_position);
 	
-	void start_time_to_zero();
 	void insertData(int num);
 	void extractData(double time);
 	void correctT();
@@ -44,6 +43,7 @@ public:
 	void correctVy(double dvy, int start, int end);
 	
 	void addGaussian(double mean, double sigma, int column=-1,  int restrain_step = -1);
+	void addGaussian_with_delay_change(double mean, double sigma, int column=-1,  int restrain_step = -1);
 	
 	std::vector<line_data> getData() { return txt_data_; }
 };
@@ -222,6 +222,149 @@ void Txt::addGaussian(double mean, double sigma, int column, int restrain_step)
 			txt_data_tmp[i].vy += gaussian_noise(mean, sigma * param);
 	}
 	txt_data_ = txt_data_tmp;
+}
+
+void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, int restrain_step)
+{
+	std::vector<line_data> txt_data_tmp;
+	txt_data_tmp = txt_data_;
+	
+	double param, noise;
+	double k;
+	
+	for(int i=0; i<txt_data_.size(); ++i)
+	{
+		if(i > restrain_step-1 || restrain_step == -1)
+			param = 1.0;
+		else
+			param = pow(2,restrain_step - i);
+		
+		if(column == 1 || column == -1)
+		{
+			if(i == 0)
+				k = 0;
+			else
+				k = (txt_data_[i].vx - txt_data_[i-1].vx)/(txt_data_[i].time - txt_data_[i-1].time);
+				
+			if(k > 0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise >= mean + sigma * 0.5)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].x += noise;
+				cout << "k =" << k << "\tx up at :" << txt_data_tmp[i].time << endl;
+			}
+			else if(k < -0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise <= mean - sigma * 0.5)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].x += noise;
+				cout << "k =" << k << "\tx down at :" << txt_data_tmp[i].time << endl;
+			}
+			else
+				txt_data_tmp[i].x += gaussian_noise(mean, sigma * param);
+		}
+		
+		if(column == 2 || column == -1)
+		{
+			if(i == 0)
+				k = 0;
+			else
+				k = (txt_data_[i].vy - txt_data_[i-1].vy)/(txt_data_[i].time - txt_data_[i-1].time);
+			
+			if(k > 0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise >= mean + sigma * 0.3)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].y += noise;
+				cout << "k =" << k << "\ty up at :" << txt_data_tmp[i].time << endl;
+			}
+			else if(k < -0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise <= mean - sigma * 0.3)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].y += noise;
+				cout << "k =" << k << "\ty down at :" << txt_data_tmp[i].time << endl;
+			}
+			else
+				txt_data_tmp[i].y += gaussian_noise(mean, sigma * param);
+		}
+		
+		if(column == 3 || column == -1)
+		{
+			if(i == 0)
+				k = 0;
+			else
+				k = (txt_data_[i].vx - txt_data_[i-1].vx)/(txt_data_[i].time - txt_data_[i-1].time);
+				
+			if(k > 0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise >= mean + sigma * 0.3)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].vx += noise;
+				cout << "k =" << k << "\tvx up at :" << txt_data_tmp[i].time << endl;
+			}
+			else if(k < -0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise <= mean - sigma * 0.3)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].vx += noise;
+				cout << "k =" << k << "\tvx down at :" << txt_data_tmp[i].time << endl;
+			}
+			else 
+				txt_data_tmp[i].vx += gaussian_noise(mean, sigma * param);
+		}
+		
+		if(column == 4 || column == -1)
+		{
+			if(i == 0)
+				k = 0;
+			else
+				k = (txt_data_[i].vy - txt_data_[i-1].vy)/(txt_data_[i].time - txt_data_[i-1].time);
+				
+			if(k > 0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise >= mean + sigma * 0.3)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].vy += noise;
+				cout << "k =" << k << "\tvy up at :" << txt_data_tmp[i].time << endl;
+			}
+			else if(k < -0.2)
+			{
+				noise = gaussian_noise(mean, sigma * param);
+				while(noise <= mean - sigma * 0.3)
+				{
+					noise = gaussian_noise(mean, sigma * param);
+				}
+				txt_data_tmp[i].vy += noise;
+				cout << "k =" << k << "\tvy down at :" << txt_data_tmp[i].time << endl;
+			}
+			else
+				txt_data_tmp[i].vy += gaussian_noise(mean, sigma * param);
+		}
+	}
+	txt_data_ = txt_data_tmp;
+	
 }
 
 void Txt::writeFile(string& file_position)
