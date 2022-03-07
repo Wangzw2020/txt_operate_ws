@@ -4,8 +4,8 @@
 //#define dt 0.100000
 //#define dt 0.0333333
 
-string txt_id_read = "/home/wzw/data/paper_data/car_go/ped0_extract_fps10.txt";
-string txt_id_write = "/home/wzw/data/paper_data/car_go/ped0_extract_fps10_high.txt";
+string txt_id_read = "/home/wzw/data/paper_data/ped_go_new/ped0_extract_fps10.txt";
+string txt_id_write = "/home/wzw/data/paper_data/ped_go_new/ped0_extract_fps10_high.txt";
 
 int main()
 {

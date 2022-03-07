@@ -203,23 +203,50 @@ void Txt::addGaussian(double mean, double sigma, int column, int restrain_step)
 	std::vector<line_data> txt_data_tmp;
 	txt_data_tmp = txt_data_;
 	
-	double param;
+	double param, noise;
 	
 	for(int i=0; i<txt_data_.size(); ++i)
 	{
-		if(i > restrain_step-1 || restrain_step == -1)
+		if(i > restrain_step - 1 || restrain_step == -1)
 			param = 1.0;
 		else
-			param = pow(2,restrain_step - i);
+			param = pow(2,(restrain_step - i)/2);
 		
 		if(column == 1 || column == -1)
-			txt_data_tmp[i].x += gaussian_noise(mean, sigma * param);
+		{
+			noise = gaussian_noise(mean, sigma * param);
+			if(i >= 1 && i < restrain_step)
+				while(abs(txt_data_tmp[i-1].x - txt_data_[i-1].x) < noise)
+					noise = gaussian_noise(mean, sigma * param);
+			txt_data_tmp[i].x += noise;
+		}
+			
 		if(column == 2 || column == -1)
-			txt_data_tmp[i].y += gaussian_noise(mean, sigma * param);
+		{
+			noise = gaussian_noise(mean, sigma * param);
+			if(i >= 1 && i < restrain_step)
+				while(abs(txt_data_tmp[i-1].y - txt_data_[i-1].y) < noise)
+					noise = gaussian_noise(mean, sigma * param);
+			txt_data_tmp[i].y += noise;
+		}
+
 		if(column == 3 || column == -1)
-			txt_data_tmp[i].vx += gaussian_noise(mean, sigma * param);
+		{
+			noise = gaussian_noise(mean, sigma * param);
+			if(i >= 1 && i < restrain_step)
+				while(abs(txt_data_tmp[i-1].vx - txt_data_[i-1].vx) < noise)
+					noise = gaussian_noise(mean, sigma * param);
+			txt_data_tmp[i].vx += noise;
+		}
+
 		if(column == 4 || column == -1)
-			txt_data_tmp[i].vy += gaussian_noise(mean, sigma * param);
+		{
+			noise = gaussian_noise(mean, sigma * param);
+			if(i >= 1 && i < restrain_step)
+				while(abs(txt_data_tmp[i-1].vy - txt_data_[i-1].vy) < noise)
+					noise = gaussian_noise(mean, sigma * param);
+			txt_data_tmp[i].vy += noise;
+		}
 	}
 	txt_data_ = txt_data_tmp;
 }
@@ -237,7 +264,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 		if(i > restrain_step-1 || restrain_step == -1)
 			param = 1.0;
 		else
-			param = pow(2,restrain_step - i);
+			param = pow(2,(restrain_step - i)/2);
 		
 		if(column == 1 || column == -1)
 		{
@@ -249,7 +276,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			if(k > 0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise >= mean + sigma * 0.5)
+				while(noise >= mean + sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
@@ -259,7 +286,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			else if(k < -0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise <= mean - sigma * 0.5)
+				while(noise <= mean - sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
@@ -280,7 +307,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			if(k > 0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise >= mean + sigma * 0.3)
+				while(noise >= mean + sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
@@ -290,7 +317,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			else if(k < -0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise <= mean - sigma * 0.3)
+				while(noise <= mean - sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
@@ -311,7 +338,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			if(k > 0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise >= mean + sigma * 0.3)
+				while(noise >= mean + sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
@@ -321,7 +348,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			else if(k < -0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise <= mean - sigma * 0.3)
+				while(noise <= mean - sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
@@ -342,7 +369,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			if(k > 0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise >= mean + sigma * 0.3)
+				while(noise >= mean + sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
@@ -352,7 +379,7 @@ void Txt::addGaussian_with_delay_change(double mean, double sigma, int column, i
 			else if(k < -0.2)
 			{
 				noise = gaussian_noise(mean, sigma * param);
-				while(noise <= mean - sigma * 0.3)
+				while(noise <= mean - sigma * 0.6)
 				{
 					noise = gaussian_noise(mean, sigma * param);
 				}
